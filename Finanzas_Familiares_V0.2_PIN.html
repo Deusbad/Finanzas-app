@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Finanzas Familiares - Panel Móvil</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                        },
+                        tealbg: {
+                            light: '#0e5a53',
+                            dark: '#082321',
+                            cardLight: '#ffffff',
+                            cardDark: '#0f3834'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft-float': '0 20px 35px -10px rgba(0, 0, 0, 0.18), 0 10px 15px -5px rgba(0, 0, 0, 0.1)',
+                        'glow-mint': '0 0 20px rgba(45, 212, 191, 0.35)',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .bg-waves {
+            background-image: radial-gradient(circle at 10% 20%, rgba(45, 212, 191, 0.15) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(20, 184, 166, 0.2) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body class="bg-tealbg-light dark:bg-tealbg-dark text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-300 bg-waves">
+
+<div id="root"></div>
+
+<script type="text/babel">
+
+const LISTA_CATEGORIAS = [
+    'MERCADO', 'SALUD', 'ALQUILER', 'RESTAURANTES', 'ROPA', 'HOGAR', 
+    'EDUCACION', 'SUSCRIPCIONES', 'UTILES CAMILO', 'HERRAMIENTAS', 
+    'INVERSIONES', 'OCIO', 'TRANSPORTE', 'SERVICIOS', 'SUELDO', 
+    'OTRO INGRESO', 'PRESTAMO', 'PAGO DEUDA', 'TRUEQUE'
+];
+
+const LISTA_METODOS = ['TARJETA', 'BIZUM', 'TRANSFERENCIA', 'EFECTIVO', 'PAYPAL', 'REMITLY'];
+const LISTA_CUENTAS = ['MARTINA', 'CAMILO', 'LAURA', 'RUBY', 'TOMAS'];
+const LISTA_PERSONAS = ['MARTINA', 'CAMILO', 'LAURA', 'RUBY', 'DAVID', 'TOMAS', 'MOISES', 'JOSE', 'ANDREA', 'VALENTINA', 'ELIAS'];
+
+// Master Initial Data aligned 100% with Finanzas_7.5
+const INITIAL_MOVIMIENTOS = [
+    { id: 1, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'INGRESO', categoria: 'SUELDO', descripcion: 'PAGO DE SUELDO + FINIQUITO', importe: 624.52, tipoGasto: '', responsable: 'MARTINA', destino: 'MARTINA', metodo: 'TRANSFERENCIA', direccion: 'ENTRA', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 2, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'GASTO', categoria: 'MERCADO', descripcion: 'MERCADONA DELIVERY', importe: 186.49, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 3, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'GASTO', categoria: 'MERCADO', descripcion: 'CARNE PARA EL MES', importe: 74.27, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 4, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'GASTO', categoria: 'MERCADO', descripcion: 'COMPLEMENTAR MERCADO', importe: 5.75, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 5, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'GASTO', categoria: 'MERCADO', descripcion: 'CARREFOUR COMIDA', importe: 5.90, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 6, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'GASTO', categoria: 'SALUD', descripcion: 'PARACETAMOL', importe: 10.00, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: 'CAMILO', metodo: 'BIZUM', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 7, fecha: '2026-09-02', persona: 'MARTINA', tipo: 'GASTO', categoria: 'RESTAURANTES', descripcion: 'MASTER WOK', importe: 4.00, tipoGasto: 'INDIVIDUAL', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 8, fecha: '2026-09-03', persona: 'MARTINA', tipo: 'GASTO', categoria: 'ALQUILER', descripcion: 'ALQUILER JUAN BRAVO', importe: 200.00, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'BIZUM', direccion: 'SALE', cuenta: 'LAURA', idDeuda: '' },
+    { id: 9, fecha: '2026-09-03', persona: 'MARTINA', tipo: 'GASTO', categoria: 'ROPA', descripcion: 'ROPA', importe: 25.98, tipoGasto: 'INDIVIDUAL', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 10, fecha: '2026-09-04', persona: 'MARTINA', tipo: 'GASTO', categoria: 'UTILES CAMILO', descripcion: 'COPIAS', importe: 15.00, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 11, fecha: '2026-09-07', persona: 'MARTINA', tipo: 'GASTO', categoria: 'HOGAR', descripcion: 'CALZONES Y FRASCOS', importe: 11.30, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 12, fecha: '2026-09-07', persona: 'MARTINA', tipo: 'GASTO', categoria: 'MERCADO', descripcion: 'COMIDA', importe: 13.54, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 13, fecha: '2026-09-07', persona: 'MARTINA', tipo: 'GASTO', categoria: 'RESTAURANTES', descripcion: 'AQUARIUS', importe: 2.50, tipoGasto: 'INDIVIDUAL', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 14, fecha: '2026-09-08', persona: 'MARTINA', tipo: 'GASTO', categoria: 'RESTAURANTES', descripcion: 'HAMBURGUESA', importe: 13.11, tipoGasto: 'INDIVIDUAL', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 15, fecha: '2026-09-09', persona: 'MARTINA', tipo: 'TRUEQUE', categoria: 'TRUEQUE', descripcion: 'RECARGA A CAMILO', importe: 10.00, tipoGasto: 'INDIVIDUAL', responsable: 'MARTINA', destino: 'CAMILO', metodo: 'BIZUM', direccion: 'SALE', cuenta: 'CAMILO', idDeuda: '' },
+    { id: 16, fecha: '2026-09-10', persona: 'MARTINA', tipo: 'GASTO', categoria: 'MERCADO', descripcion: 'MERCADO SEMANAL', importe: 39.75, tipoGasto: 'FAMILIAR', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' },
+    { id: 17, fecha: '2026-09-01', persona: 'MARTINA', tipo: 'GASTO', categoria: 'SUSCRIPCIONES', descripcion: 'RECARGA A MARTINA', importe: 10.00, tipoGasto: 'INDIVIDUAL', responsable: 'MARTINA', destino: '', metodo: 'TARJETA', direccion: 'SALE', cuenta: 'MARTINA', idDeuda: '' }
+];
+
+const INITIAL_DEUDAS = [
+    { id: 'D001', fecha: '2026-09-09', tipo: 'DEBO', persona: 'CAMILO', aquien: 'LAURA', descripcion: 'COMIDA', importe: 918.35, pagado: 0.00, estado: 'PENDIENTE' },
+    { id: 'D002', fecha: '2026-09-10', tipo: 'DEBO', persona: 'CAMILO', aquien: 'RUBY', descripcion: 'PAPELES', importe: 2137.70, pagado: 0.00, estado: 'PENDIENTE' }
+];
+
+const INITIAL_PRESUPUESTO = [
+    { id: 1, categoria: 'MERCADO', presupuestado: 400.00 },
+    { id: 2, categoria: 'SUSCRIPCIONES', presupuestado: 34.00 }
+];
+
+const INITIAL_METAS = [
+    { id: 'M001', nombre: 'IMPRESORA HP', objetivo: 170.00, aportado: 0.00, fechaCumplida: null, estado: 'PENDIENTE' }
+];
+
+function App() {
+    const { useState, useEffect } = React;
+
+    const [darkMode, setDarkMode] = useState(false);
+    const [selectedMonth, setSelectedMonth] = useState('2026-09');
+    const [currentUser, setCurrentUser] = useState(null);
+    const [activeTab, setActiveTab] = useState('resumen');
+    const [movimientos, setMovimientos] = useState(INITIAL_MOVIMIENTOS);
+    const [deudas, setDeudas] = useState(INITIAL_DEUDAS);
+    const [presupuestos, setPresupuestos] = useState(INITIAL_PRESUPUESTO);
+    const [metas, setMetas] = useState(INITIAL_METAS);
+    
+    // Modals & Toast state
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isAddDebtModalOpen, setIsAddDebtModalOpen] = useState(false);
+    const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+    const [toastMessage, setToastMessage] = useState(null);
+
+    useEffect(() => {
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    }, [activeTab, darkMode, isAddModalOpen, isAddDebtModalOpen, isPinModalOpen, movimientos, deudas]);
+
+    const showToast = (msg) => {
+        setToastMessage(msg);
+        setTimeout(() => setToastMessage(null), 3000);
+    };
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+        if (!darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    };
+
+    const filteredMovimientos = movimientos.filter(m => m.fecha.startsWith(selectedMonth));
+
+    const totalIngresos = filteredMovimientos
+        .filter(m => m.tipo === 'INGRESO')
+        .reduce((sum, m) => sum + m.importe, 0);
+
+    const ingresosCamilo = filteredMovimientos
+        .filter(m => m.tipo === 'INGRESO' && m.persona === 'CAMILO')
+        .reduce((sum, m) => sum + m.importe, 0);
+
+    const ingresosMartina = filteredMovimientos
+        .filter(m => m.tipo === 'INGRESO' && m.persona === 'MARTINA')
+        .reduce((sum, m) => sum + m.importe, 0);
+
+    let pctCamilo = totalIngresos > 0 ? (ingresosCamilo / totalIngresos) : 0;
+    let pctMartina = totalIngresos > 0 ? (ingresosMartina / totalIngresos) : 1;
+
+    const totalGastos = filteredMovimientos
+        .filter(m => m.tipo === 'GASTO')
+        .reduce((sum, m) => sum + m.importe, 0);
+
+    const gastosFamiliares = filteredMovimientos.filter(m => m.tipo === 'GASTO' && m.tipoGasto === 'FAMILIAR');
+    const totalGastosFamiliares = gastosFamiliares.reduce((sum, m) => sum + m.importe, 0);
+
+    const pagoFamiliarCamilo = gastosFamiliares
+        .filter(m => m.responsable === 'CAMILO')
+        .reduce((sum, m) => sum + m.importe, 0);
+
+    const pagoFamiliarMartina = gastosFamiliares
+        .filter(m => m.responsable === 'MARTINA')
+        .reduce((sum, m) => sum + m.importe, 0);
+
+    const deberiaAportarCamilo = totalGastosFamiliares * pctCamilo;
+    const deberiaAportarMartina = totalGastosFamiliares * pctMartina;
+
+    const difCamilo = pagoFamiliarCamilo - deberiaAportarCamilo;
+    const difMartina = pagoFamiliarMartina - deberiaAportarMartina;
+
+    let compensacionTexto = "NO HAY COMPENSACIÓN";
+    if (difCamilo > 0.01) {
+        compensacionTexto = `Martina debe pagar a Camilo ${difCamilo.toFixed(2)} €`;
+    } else if (difMartina > 0.01) {
+        compensacionTexto = `Camilo debe pagar a Martina ${difMartina.toFixed(2)} €`;
+    }
+
+    const balanceMes = totalIngresos - totalGastos;
+
+    const saldoActualCamilo = 10.99;
+    const saldoActualMartina = 196.93;
+
+    const totalPresupuestado = presupuestos.reduce((sum, p) => sum + p.presupuestado, 0);
+    const pctPresupuestoUtilizado = totalPresupuestado > 0 ? (totalGastos / totalPresupuestado) * 100 : 0;
+
+    const totalDebemos = deudas.filter(d => d.tipo === 'DEBO').reduce((sum, d) => sum + (d.importe - d.pagado), 0);
+    const totalNosDeben = deudas.filter(d => d.tipo === 'ME DEBEN').reduce((sum, d) => sum + (d.importe - d.pagado), 0);
+
+    if (!currentUser) {
+        return (
+            <PinLogin
+                onLogin={setCurrentUser}
+            />
+        );
+    }
+
+    return (
+        <div className="flex flex-col min-h-screen max-w-md mx-auto relative pb-24 shadow-2xl bg-tealbg-light dark:bg-tealbg-dark">
+            
+            {/* TOAST NOTIFICATION */}
+            {toastMessage && (
+                <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-teal-900 text-teal-100 font-semibold px-4 py-2.5 rounded-2xl shadow-xl text-xs border border-teal-500/40 flex items-center gap-2">
+                    <span>{toastMessage}</span>
+                </div>
+            )}
+
+            {/* HEADER */}
+            <header className="p-4 pt-6 flex items-center justify-between text-white border-b border-teal-600/30">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-teal-400 to-emerald-300 text-teal-950 flex items-center justify-center font-bold shadow-lg shadow-teal-900/40">
+                        {currentUser === 'CAMILO' ? 'C' : 'M'}
+                    </div>
+                    <div>
+                        <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => setIsPinModalOpen(true)}>
+                            <h1 className="font-bold text-lg tracking-tight leading-none">{currentUser}</h1>
+                            <span className="text-[10px] bg-teal-400/20 text-teal-200 px-2 py-0.5 rounded-full border border-teal-300/30">PIN 🔒</span>
+                        </div>
+                        <p className="text-xs text-teal-200/80 mt-0.5">Finanzas Familiares</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                    <button 
+                        onClick={toggleDarkMode}
+                        className="p-2 rounded-xl bg-teal-800/60 dark:bg-teal-900/80 border border-teal-500/30 text-teal-200 hover:text-white transition-all active:scale-95">
+                        <i data-lucide={darkMode ? "sun" : "moon"} className="w-4 h-4"></i>
+                    </button>
+
+                    <div className="relative">
+                        <select 
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            className="bg-teal-800/70 dark:bg-teal-900/90 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-teal-400/30 appearance-none pr-7 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-400">
+                            <option value="2026-08">Ago / 2026</option>
+                            <option value="2026-09">Sept / 2026</option>
+                            <option value="2026-10">Oct / 2026</option>
+                        </select>
+                        <i data-lucide="chevron-down" className="w-3.5 h-3.5 absolute right-2 top-2.5 text-teal-200 pointer-events-none"></i>
+                    </div>
+                </div>
+            </header>
+
+            {/* MAIN CONTENT VIEWS */}
+            <main className="p-4 flex-1 space-y-5">
+                {activeTab === 'resumen' && (
+                    <ResumenView 
+                        totalIngresos={totalIngresos}
+                        totalGastos={totalGastos}
+                        balanceMes={balanceMes}
+                        pctPresupuestoUtilizado={pctPresupuestoUtilizado}
+                        saldoActualCamilo={saldoActualCamilo}
+                        saldoActualMartina={saldoActualMartina}
+                        compensacionTexto={compensacionTexto}
+                        totalGastosFamiliares={totalGastosFamiliares}
+                        movimientos={filteredMovimientos}
+                    />
+                )}
+
+                {activeTab === 'movimientos' && (
+                    <MovimientosView 
+                        movimientos={filteredMovimientos} 
+                        onAddClick={() => setIsAddModalOpen(true)}
+                    />
+                )}
+
+                {activeTab === 'aportes' && (
+                    <AportesView 
+                        ingresosCamilo={ingresosCamilo}
+                        ingresosMartina={ingresosMartina}
+                        totalIngresos={totalIngresos}
+                        pctCamilo={pctCamilo}
+                        pctMartina={pctMartina}
+                        totalGastosFamiliares={totalGastosFamiliares}
+                        pagoFamiliarCamilo={pagoFamiliarCamilo}
+                        pagoFamiliarMartina={pagoFamiliarMartina}
+                        deberiaAportarCamilo={deberiaAportarCamilo}
+                        deberiaAportarMartina={deberiaAportarMartina}
+                        compensacionTexto={compensacionTexto}
+                    />
+                )}
+
+                {activeTab === 'presupuestos' && (
+                    <PresupuestosView 
+                        presupuestos={presupuestos}
+                        movimientos={filteredMovimientos}
+                        totalPresupuestado={totalPresupuestado}
+                        totalGastos={totalGastos}
+                        pctPresupuestoUtilizado={pctPresupuestoUtilizado}
+                        metas={metas}
+                    />
+                )}
+
+                {activeTab === 'deudas' && (
+                    <DeudasView 
+                        deudas={deudas}
+                        totalDebemos={totalDebemos}
+                        totalNosDeben={totalNosDeben}
+                        onAddDebtClick={() => setIsAddDebtModalOpen(true)}
+                    />
+                )}
+            </main>
+
+            {/* FLOATING ACTION BUTTON */}
+            <button 
+                onClick={() => setIsAddModalOpen(true)}
+                className="fixed bottom-20 right-5 z-30 w-14 h-14 rounded-full bg-gradient-to-r from-teal-400 to-emerald-400 text-teal-950 font-bold flex items-center justify-center shadow-soft-float shadow-teal-400/40 hover:scale-105 active:scale-95 transition-all">
+                <i data-lucide="plus" className="w-7 h-7 stroke-[2.5]"></i>
+            </button>
+
+            {/* BOTTOM NAVIGATION BAR */}
+            <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-teal-950/90 dark:bg-teal-950/95 backdrop-blur-md border-t border-teal-800/40 p-2 z-40 flex justify-around items-center">
+                <NavItem icon="layout-dashboard" label="Resumen" active={activeTab === 'resumen'} onClick={() => setActiveTab('resumen')} />
+                <NavItem icon="arrow-left-right" label="Movimientos" active={activeTab === 'movimientos'} onClick={() => setActiveTab('movimientos')} />
+                <NavItem icon="scale" label="Aportes" active={activeTab === 'aportes'} onClick={() => setActiveTab('aportes')} />
+                <NavItem icon="pie-chart" label="Presupuesto" active={activeTab === 'presupuestos'} onClick={() => setActiveTab('presupuestos')} />
+                <NavItem icon="receipt" label="Deudas" active={activeTab === 'deudas'} onClick={() => setActiveTab('deudas')} />
+            </nav>
+
+            {/* MODALS */}
+            {isAddModalOpen && (
+                <AddMovementModal 
+                    currentUser={currentUser}
+                    deudas={deudas}
+                    onClose={() => setIsAddModalOpen(false)}
+                    onSave={(newMov) => {
+                        setMovimientos([newMov, ...movimientos]);
+                        setIsAddModalOpen(false);
+                        showToast("✅ Movimiento registrado con éxito");
+                    }}
+                    onOpenAddDebt={() => {
+                        setIsAddModalOpen(false);
+                        setIsAddDebtModalOpen(true);
+                    }}
+                />
+            )}
+
+            {isAddDebtModalOpen && (
+                <AddDebtModal 
+                    currentUser={currentUser}
+                    onClose={() => setIsAddDebtModalOpen(false)}
+                    onSave={(newDebt) => {
+                        setDeudas([newDebt, ...deudas]);
+                        setIsAddDebtModalOpen(false);
+                        showToast("📌 Nueva deuda registrada");
+                    }}
+                />
+            )}
+
+            {isPinModalOpen && (
+                <PinUserModal 
+                    currentUser={currentUser}
+                    onClose={() => setIsPinModalOpen(false)}
+                    onSwitchUser={(newUser) => {
+                        setCurrentUser(newUser);
+                        setIsPinModalOpen(false);
+                        showToast(`👤 Usuario cambiado a ${newUser}`);
+                    }}
+                />
+            )}
+        </div>
+    );
+}
+
+function NavItem({ icon, label, active, onClick }) {
+    return (
+        <button 
+            onClick={onClick}
+            className={`flex flex-col items-center py-1 px-2 rounded-xl transition-all ${
+                active ? 'text-teal-300 font-bold scale-105' : 'text-teal-400/60 hover:text-teal-200'
+            }`}>
+            <i data-lucide={icon} className="w-5 h-5 mb-0.5"></i>
+            <span className="text-[10px] tracking-tight">{label}</span>
+        </button>
+    );
+}
+
+function ResumenView({ totalIngresos, totalGastos, balanceMes, pctPresupuestoUtilizado, saldoActualCamilo, saldoActualMartina, compensacionTexto, totalGastosFamiliares, movimientos }) {
+    return (
+        <div className="space-y-4">
+            {/* KPI Cards Grid */}
+            <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 relative overflow-hidden">
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Ingresos</span>
+                    <h3 className="text-xl font-black text-emerald-500 mt-1">{totalIngresos.toFixed(2)} €</h3>
+                    <div className="mt-2 flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                        <i data-lucide="trending-up" className="w-3 h-3"></i>
+                        <span>Entradas del mes</span>
+                    </div>
+                </div>
+
+                <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 relative overflow-hidden">
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Gastos</span>
+                    <h3 className="text-xl font-black text-rose-500 mt-1">{totalGastos.toFixed(2)} €</h3>
+                    <div className="mt-2 flex items-center gap-1 text-[10px] text-rose-500 dark:text-rose-400 font-semibold">
+                        <i data-lucide="trending-down" className="w-3 h-3"></i>
+                        <span>Salidas del mes</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Balance Card */}
+            <div className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white p-5 rounded-3xl shadow-xl space-y-2">
+                <div className="flex justify-between items-center">
+                    <span className="text-xs font-semibold text-teal-100 uppercase tracking-wider">Balance Neto del Mes</span>
+                    <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full backdrop-blur-sm">
+                        {balanceMes >= 0 ? 'Positivo' : 'Deficitario'}
+                    </span>
+                </div>
+                <h2 className="text-3xl font-black">{balanceMes.toFixed(2)} €</h2>
+                <p className="text-xs text-teal-100/90 font-medium">Gastos Familiares totales: {totalGastosFamiliares.toFixed(2)} €</p>
+            </div>
+
+            {/* Saldos de Cuenta */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Saldos de Cuenta Actuales</h3>
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-800/30">
+                        <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase">Camilo</span>
+                        <p className="text-lg font-black text-teal-900 dark:text-white mt-0.5">{saldoActualCamilo.toFixed(2)} €</p>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-100 dark:border-teal-800/30">
+                        <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 uppercase">Martina</span>
+                        <p className="text-lg font-black text-teal-900 dark:text-white mt-0.5">{saldoActualMartina.toFixed(2)} €</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Compensación alert */}
+            <div className="p-4 rounded-3xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-200 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/20 flex items-center justify-center flex-shrink-0 text-amber-600 dark:text-amber-300">
+                    <i data-lucide="scale" className="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider">Estado de Aportes</h4>
+                    <p className="text-xs font-semibold mt-0.5">{compensacionTexto}</p>
+                </div>
+            </div>
+
+            {/* Últimos movimientos */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Últimos Movimientos</h3>
+                <div className="space-y-2">
+                    {movimientos.slice(0, 4).map(m => (
+                        <div key={m.id} className="flex justify-between items-center p-2.5 rounded-2xl bg-slate-50 dark:bg-teal-900/20">
+                            <div className="flex items-center gap-2.5">
+                                <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                                    m.tipo === 'INGRESO' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-slate-200 text-slate-700 dark:bg-teal-800 dark:text-teal-200'
+                                }`}>
+                                    {m.categoria.substring(0, 2)}
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-800 dark:text-white">{m.descripcion}</h4>
+                                    <p className="text-[10px] text-slate-400 dark:text-teal-300/60">{m.persona} • {m.fecha}</p>
+                                </div>
+                            </div>
+                            <span className={`text-xs font-black ${m.tipo === 'INGRESO' ? 'text-emerald-500' : 'text-slate-800 dark:text-slate-200'}`}>
+                                {m.tipo === 'INGRESO' ? '+' : '-'}{m.importe.toFixed(2)} €
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function MovimientosView({ movimientos, onAddClick }) {
+    const { useState } = React;
+    const [filtroTipo, setFiltroTipo] = useState('TODOS');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const filtrados = movimientos.filter(m => {
+        const matchTipo = filtroTipo === 'TODOS' || m.tipo === filtroTipo;
+        const matchQuery = m.descripcion.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           m.categoria.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchTipo && matchQuery;
+    });
+
+    return (
+        <div className="space-y-4">
+            {/* Search & Filter */}
+            <div className="space-y-2">
+                <div className="relative">
+                    <i data-lucide="search" className="w-4 h-4 absolute left-3.5 top-3 text-slate-400 dark:text-teal-300/60"></i>
+                    <input 
+                        type="text" 
+                        placeholder="Buscar movimientos..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-tealbg-cardDark text-xs font-medium rounded-2xl border border-teal-100 dark:border-teal-800/40 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                    />
+                </div>
+
+                <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                    {['TODOS', 'GASTO', 'INGRESO', 'TRUEQUE', 'PAGO DEUDA'].map(t => (
+                        <button
+                            key={t}
+                            onClick={() => setFiltroTipo(t)}
+                            className={`px-3 py-1.5 rounded-xl text-[10px] font-bold whitespace-nowrap transition-all ${
+                                filtroTipo === t 
+                                ? 'bg-teal-500 text-white shadow-sm' 
+                                : 'bg-white dark:bg-tealbg-cardDark text-slate-500 dark:text-teal-200/70 border border-teal-100 dark:border-teal-800/40'
+                            }`}>
+                            {t}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {/* List */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-3">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-teal-800/40">
+                    <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Historial ({filtrados.length})</h3>
+                    <button onClick={onAddClick} className="text-xs font-bold text-teal-500 hover:underline flex items-center gap-1">
+                        <i data-lucide="plus" className="w-3.5 h-3.5"></i>
+                        <span>Añadir</span>
+                    </button>
+                </div>
+
+                {filtrados.length === 0 ? (
+                    <p className="text-xs text-slate-400 dark:text-teal-300/50 text-center py-6">No hay movimientos con los criterios seleccionados.</p>
+                ) : (
+                    <div className="space-y-2.5">
+                        {filtrados.map(m => (
+                            <div key={m.id} className="p-3 rounded-2xl bg-slate-50 dark:bg-teal-900/30 border border-slate-100 dark:border-teal-800/30 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-9 h-9 rounded-2xl flex items-center justify-center font-bold text-xs ${
+                                        m.tipo === 'INGRESO' 
+                                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/60 dark:text-emerald-300' 
+                                        : m.tipo === 'TRUEQUE'
+                                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/60 dark:text-amber-300'
+                                        : 'bg-teal-100 text-teal-800 dark:bg-teal-800 dark:text-teal-200'
+                                    }`}>
+                                        {m.categoria.substring(0, 2)}
+                                    </div>
+                                    <div>
+                                        <h4 className="text-xs font-bold text-slate-800 dark:text-white">{m.descripcion}</h4>
+                                        <div className="flex items-center gap-2 mt-0.5">
+                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-teal-950 font-semibold text-slate-600 dark:text-teal-300">{m.categoria}</span>
+                                            <span className="text-[10px] text-slate-400 dark:text-teal-300/60">{m.persona} • {m.fecha}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="text-right">
+                                    <p className={`text-xs font-black ${m.tipo === 'INGRESO' ? 'text-emerald-500' : 'text-slate-800 dark:text-slate-100'}`}>
+                                        {m.tipo === 'INGRESO' ? '+' : '-'}{m.importe.toFixed(2)} €
+                                    </p>
+                                    <span className="text-[9px] font-medium text-slate-400">{m.metodo}</span>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function AportesView({ ingresosCamilo, ingresosMartina, totalIngresos, pctCamilo, pctMartina, totalGastosFamiliares, pagoFamiliarCamilo, pagoFamiliarMartina, deberiaAportarCamilo, deberiaAportarMartina, compensacionTexto }) {
+    return (
+        <div className="space-y-4">
+            {/* Ingresos & Porcentajes */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-5 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-4">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Porcentaje de Aporte por Ingresos</h3>
+
+                <div className="space-y-3">
+                    <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                            <span className="text-slate-700 dark:text-white">Camilo ({ingresosCamilo.toFixed(2)} €)</span>
+                            <span className="text-teal-500">{(pctCamilo * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-slate-100 dark:bg-teal-950 rounded-full overflow-hidden">
+                            <div className="h-full bg-teal-400 rounded-full" style={{ width: `${pctCamilo * 100}%` }}></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div className="flex justify-between text-xs font-bold mb-1">
+                            <span className="text-slate-700 dark:text-white">Martina ({ingresosMartina.toFixed(2)} €)</span>
+                            <span className="text-emerald-500">{(pctMartina * 100).toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full h-2.5 bg-slate-100 dark:bg-teal-950 rounded-full overflow-hidden">
+                            <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${pctMartina * 100}%` }}></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Reparto Gastos Familiares */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-5 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-100 dark:border-teal-800/40 pb-3">
+                    <div>
+                        <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Gastos Familiares</h3>
+                        <p className="text-lg font-black text-slate-800 dark:text-white mt-0.5">{totalGastosFamiliares.toFixed(2)} €</p>
+                    </div>
+                    <div className="w-10 h-10 rounded-2xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-300 flex items-center justify-center font-bold">
+                        👥
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-teal-900/30 space-y-1.5 border border-slate-100 dark:border-teal-800/30">
+                        <span className="font-bold text-teal-600 dark:text-teal-300 uppercase text-[10px]">Camilo</span>
+                        <div className="text-slate-500 dark:text-teal-200/70">Debería aportar: <strong className="text-slate-800 dark:text-white">{deberiaAportarCamilo.toFixed(2)} €</strong></div>
+                        <div className="text-slate-500 dark:text-teal-200/70">Pagó realmente: <strong className="text-slate-800 dark:text-white">{pagoFamiliarCamilo.toFixed(2)} €</strong></div>
+                    </div>
+
+                    <div className="p-3 rounded-2xl bg-slate-50 dark:bg-teal-900/30 space-y-1.5 border border-slate-100 dark:border-teal-800/30">
+                        <span className="font-bold text-emerald-600 dark:text-emerald-300 uppercase text-[10px]">Martina</span>
+                        <div className="text-slate-500 dark:text-teal-200/70">Debería aportar: <strong className="text-slate-800 dark:text-white">{deberiaAportarMartina.toFixed(2)} €</strong></div>
+                        <div className="text-slate-500 dark:text-teal-200/70">Pagó realmente: <strong className="text-slate-800 dark:text-white">{pagoFamiliarMartina.toFixed(2)} €</strong></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Resultado Compensación */}
+            <div className="bg-gradient-to-r from-teal-800 to-teal-900 text-white p-5 rounded-3xl shadow-xl space-y-2 border border-teal-500/30">
+                <span className="text-[10px] font-bold text-teal-300 uppercase tracking-wider">Ajuste Final</span>
+                <h4 className="text-base font-extrabold">{compensacionTexto}</h4>
+                <p className="text-[11px] text-teal-200/80">Cálculo automático proporcional basado en los ingresos totales registrados en el mes.</p>
+            </div>
+        </div>
+    );
+}
+
+function PresupuestosView({ presupuestos, movimientos, totalPresupuestado, totalGastos, pctPresupuestoUtilizado, metas }) {
+    return (
+        <div className="space-y-4">
+            {/* Global Budget Overview */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-5 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-3">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Presupuesto Mensual</span>
+                        <h3 className="text-xl font-black text-slate-800 dark:text-white mt-0.5">{totalPresupuestado.toFixed(2)} €</h3>
+                    </div>
+                    <div className="text-right">
+                        <span className="text-[10px] font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Gastado</span>
+                        <h3 className={`text-xl font-black ${totalGastos > totalPresupuestado ? 'text-rose-500' : 'text-emerald-500'}`}>
+                            {totalGastos.toFixed(2)} €
+                        </h3>
+                    </div>
+                </div>
+
+                <div className="w-full h-3 bg-slate-100 dark:bg-teal-950 rounded-full overflow-hidden">
+                    <div 
+                        className={`h-full rounded-full transition-all duration-500 ${pctPresupuestoUtilizado > 100 ? 'bg-rose-500' : 'bg-teal-400'}`} 
+                        style={{ width: `${Math.min(pctPresupuestoUtilizado, 100)}%` }}>
+                    </div>
+                </div>
+
+                <div className="flex justify-between items-center text-xs font-semibold pt-1">
+                    <span className="text-slate-400 dark:text-teal-300/60">Utilizado: {pctPresupuestoUtilizado.toFixed(1)}%</span>
+                    <span className={pctPresupuestoUtilizado > 100 ? 'text-rose-500' : 'text-emerald-500'}>
+                        {pctPresupuestoUtilizado > 100 ? '⚠️ PRESUPUESTO SUPERADO' : 'OK PLAN VIABLE'}
+                    </span>
+                </div>
+            </div>
+
+            {/* Categorías Presupuestadas */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-5 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-4">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Desglose por Categoría</h3>
+
+                <div className="space-y-4">
+                    {presupuestos.map(p => {
+                        const gastadoCat = movimientos
+                            .filter(m => m.tipo === 'GASTO' && m.categoria === p.categoria)
+                            .reduce((sum, m) => sum + m.importe, 0);
+                        const pctCat = p.presupuestado > 0 ? (gastadoCat / p.presupuestado) * 100 : 0;
+
+                        return (
+                            <div key={p.id} className="space-y-1.5">
+                                <div className="flex justify-between items-center text-xs font-bold">
+                                    <span className="text-slate-800 dark:text-white">{p.categoria}</span>
+                                    <span className="text-slate-500 dark:text-teal-200">{gastadoCat.toFixed(2)} € / {p.presupuestado.toFixed(2)} €</span>
+                                </div>
+                                <div className="w-full h-2 bg-slate-100 dark:bg-teal-950 rounded-full overflow-hidden">
+                                    <div 
+                                        className={`h-full rounded-full ${pctCat > 100 ? 'bg-rose-500' : 'bg-emerald-400'}`} 
+                                        style={{ width: `${Math.min(pctCat, 100)}%` }}>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Metas de Ahorro / Objetivos */}
+            <div className="bg-white dark:bg-tealbg-cardDark p-5 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-3">
+                <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Metas Activas</h3>
+                {metas.map(m => (
+                    <div key={m.id} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-teal-900/30 border border-slate-100 dark:border-teal-800/30 flex justify-between items-center">
+                        <div>
+                            <h4 className="text-xs font-bold text-slate-800 dark:text-white">{m.nombre}</h4>
+                            <p className="text-[10px] text-slate-400 dark:text-teal-300/60">Aportado: {m.aportado.toFixed(2)} € de {m.objetivo.toFixed(2)} €</p>
+                        </div>
+                        <span className="text-xs font-black text-amber-500">{m.estado}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function DeudasView({ deudas, totalDebemos, totalNosDeben, onAddDebtClick }) {
+    return (
+        <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40">
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Lo que debemos</span>
+                    <h3 className="text-lg font-black text-rose-500 mt-1">{totalDebemos.toFixed(2)} €</h3>
+                </div>
+
+                <div className="bg-white dark:bg-tealbg-cardDark p-4 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40">
+                    <span className="text-[10px] font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Nos deben</span>
+                    <h3 className="text-lg font-black text-emerald-500 mt-1">{totalNosDeben.toFixed(2)} €</h3>
+                </div>
+            </div>
+
+            <div className="bg-white dark:bg-tealbg-cardDark p-5 rounded-3xl shadow-lg border border-teal-100 dark:border-teal-800/40 space-y-3">
+                <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-teal-800/40">
+                    <h3 className="text-xs font-bold text-slate-400 dark:text-teal-300/70 tracking-wider uppercase">Deudas Activas</h3>
+                    <button 
+                        onClick={onAddDebtClick}
+                        className="px-3 py-1.5 rounded-xl bg-teal-500 text-white font-bold text-xs hover:bg-teal-600 transition-all flex items-center gap-1 shadow-sm">
+                        <i data-lucide="plus" className="w-3.5 h-3.5"></i>
+                        <span>Nueva Deuda</span>
+                    </button>
+                </div>
+
+                {deudas.length === 0 ? (
+                    <p className="text-xs text-slate-400 dark:text-teal-300/50 text-center py-6">No hay deudas registradas.</p>
+                ) : (
+                    deudas.map(d => (
+                        <div key={d.id} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-teal-900/30 border border-slate-100 dark:border-teal-800/30 flex justify-between items-center">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs ${
+                                    d.tipo === 'DEBO' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-300' : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300'
+                                }`}>
+                                    {d.id}
+                                </div>
+                                <div>
+                                    <h4 className="text-xs font-bold text-slate-800 dark:text-white">{d.aquien} ({d.descripcion})</h4>
+                                    <p className="text-[10px] text-slate-400 dark:text-teal-300/60">{d.persona} • {d.fecha} • <span className="font-semibold">{d.tipo}</span></p>
+                                </div>
+                            </div>
+
+                            <div className="text-right">
+                                <p className={`text-xs font-black ${d.tipo === 'DEBO' ? 'text-rose-500' : 'text-emerald-500'}`}>
+                                    {(d.importe - d.pagado).toFixed(2)} €
+                                </p>
+                                <span className="text-[9px] font-bold text-slate-400">{d.estado}</span>
+                            </div>
+                        </div>
+                    ))
+                )}
+            </div>
+        </div>
+    );
+}
+
+function AddMovementModal({ currentUser, deudas, onClose, onSave, onOpenAddDebt }) {
+    const { useState } = React;
+    const today = new Date().toISOString().split('T')[0];
+    
+    const [fecha, setFecha] = useState(today);
+    const [persona, setPersona] = useState(currentUser);
+    const [tipo, setTipo] = useState('GASTO');
+    const [importe, setImporte] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [categoria, setCategoria] = useState('MERCADO');
+    const [tipoGasto, setTipoGasto] = useState('FAMILIAR');
+    const [metodo, setMetodo] = useState('TARJETA');
+    const [showMore, setShowMore] = useState(false);
+    const [cuenta, setCuenta] = useState(currentUser);
+    const [responsable, setResponsable] = useState(currentUser);
+    const [destino, setDestino] = useState('');
+    const [idDeuda, setIdDeuda] = useState('');
+
+    const handleTipoChange = (newTipo) => {
+        setTipo(newTipo);
+        if (newTipo === 'INGRESO') {
+            setCategoria('SUELDO');
+            setTipoGasto('');
+        } else if (newTipo === 'TRUEQUE') {
+            setCategoria('TRUEQUE');
+            setTipoGasto('INDIVIDUAL');
+            setMetodo('BIZUM');
+        } else if (newTipo === 'PAGO DEUDA') {
+            setCategoria('PAGO DEUDA');
+            setTipoGasto('FAMILIAR');
+        } else {
+            setCategoria('MERCADO');
+            setTipoGasto('FAMILIAR');
+        }
+    };
+
+    const handleSave = (e) => {
+        e.preventDefault();
+        if (!importe || parseFloat(importe) <= 0) return;
+
+        let dir = tipo === 'INGRESO' ? 'ENTRA' : 'SALE';
+
+        const newMov = {
+            id: Date.now(),
+            fecha: fecha || today,
+            persona: persona,
+            tipo: tipo,
+            categoria: categoria,
+            descripcion: descripcion || categoria,
+            importe: parseFloat(importe),
+            tipoGasto: tipo === 'GASTO' || tipo === 'PAGO DEUDA' ? tipoGasto : '',
+            responsable: responsable,
+            destino: destino,
+            metodo: metodo,
+            direccion: dir,
+            cuenta: cuenta,
+            idDeuda: tipo === 'PAGO DEUDA' ? idDeuda : ''
+        };
+
+        onSave(newMov);
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 bg-teal-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="w-full max-w-md bg-white dark:bg-tealbg-cardDark rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-teal-100 dark:border-teal-800/50 max-h-[85vh] flex flex-col">
+                
+                <div className="flex justify-between items-center border-b border-slate-100 dark:border-teal-800/40 pb-3 flex-shrink-0">
+                    <div>
+                        <h3 className="font-bold text-sm text-slate-800 dark:text-white">Nuevo Movimiento</h3>
+                        <p className="text-[10px] text-slate-400 dark:text-teal-300/60">Registra ingresos o gastos de forma ágil</p>
+                    </div>
+                    <button onClick={onClose} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-teal-900/50 text-slate-400">
+                        <i data-lucide="x" className="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form onSubmit={handleSave} className="space-y-3.5 text-xs overflow-y-auto no-scrollbar py-3 flex-1">
+                    
+                    {/* Botones Tipo */}
+                    <div className="grid grid-cols-4 gap-1 bg-slate-100 dark:bg-teal-950/60 p-1 rounded-2xl">
+                        {['GASTO', 'INGRESO', 'TRUEQUE', 'PAGO DEUDA'].map(t => (
+                            <button
+                                type="button"
+                                key={t}
+                                onClick={() => handleTipoChange(t)}
+                                className={`py-2 rounded-xl font-bold text-[10px] transition-all ${
+                                    tipo === t 
+                                    ? 'bg-teal-500 text-white shadow-sm' 
+                                    : 'text-slate-500 dark:text-teal-200/60 hover:text-white'
+                                }`}>
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Importe y Fecha */}
+                    <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Importe (€)</label>
+                            <input 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0.00"
+                                value={importe}
+                                onChange={(e) => setImporte(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 font-black p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400 text-base"
+                                required
+                                autoFocus
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Fecha</label>
+                            <input 
+                                type="date" 
+                                value={fecha}
+                                onChange={(e) => setFecha(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 font-semibold p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    {/* Descripción */}
+                    <div>
+                        <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Concepto / Detalle</label>
+                        <input 
+                            type="text" 
+                            placeholder="Ej. Mercadona, Recarga, Comida..."
+                            value={descripcion}
+                            onChange={(e) => setDescripcion(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-teal-950/60 p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        />
+                    </div>
+
+                    {/* Categoría y Método */}
+                    <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Categoría</label>
+                            <select 
+                                value={categoria}
+                                onChange={(e) => setCategoria(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400 font-medium">
+                                {LISTA_CATEGORIAS.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Método</label>
+                            <select 
+                                value={metodo}
+                                onChange={(e) => setMetodo(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400 font-medium">
+                                {LISTA_METODOS.map(m => (
+                                    <option key={m} value={m}>{m}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Tipo de Gasto */}
+                    {(tipo === 'GASTO' || tipo === 'PAGO DEUDA') && (
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Ámbito</label>
+                            <div className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setTipoGasto('FAMILIAR')}
+                                    className={`flex-1 py-2 rounded-2xl font-bold text-xs border transition-all ${
+                                        tipoGasto === 'FAMILIAR'
+                                        ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                                        : 'border-slate-200 text-slate-600 dark:border-teal-800 dark:text-teal-200'
+                                    }`}>
+                                    👥 Familiar
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setTipoGasto('INDIVIDUAL')}
+                                    className={`flex-1 py-2 rounded-2xl font-bold text-xs border transition-all ${
+                                        tipoGasto === 'INDIVIDUAL'
+                                        ? 'bg-slate-700 text-white border-slate-700 shadow-sm'
+                                        : 'border-slate-200 text-slate-600 dark:border-teal-800 dark:text-teal-200'
+                                    }`}>
+                                    👤 Individual
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {tipo === 'PAGO DEUDA' && (
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Vincular a Deuda Existente</label>
+                            <select 
+                                value={idDeuda}
+                                onChange={(e) => setIdDeuda(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400 font-medium">
+                                <option value="">-- Seleccionar Deuda --</option>
+                                {deudas.map(d => (
+                                    <option key={d.id} value={d.id}>{d.id} - {d.aquien} ({d.descripcion}) [{ (d.importe - d.pagado).toFixed(2) } €]</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Opciones Avanzadas */}
+                    <div className="pt-1">
+                        <button 
+                            type="button"
+                            onClick={() => setShowMore(!showMore)}
+                            className="text-[11px] font-semibold text-teal-600 dark:text-teal-300 flex items-center gap-1 hover:underline">
+                            <span>{showMore ? '▲ Ocultar detalles adicionales' : '▼ Mostrar más opciones (Cuenta, Destino)'}</span>
+                        </button>
+
+                        {showMore && (
+                            <div className="mt-2 space-y-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-teal-950/40 border border-slate-200/60 dark:border-teal-800/40">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div>
+                                        <label className="block text-[9px] font-bold text-slate-400 uppercase">Cuenta</label>
+                                        <select 
+                                            value={cuenta}
+                                            onChange={(e) => setCuenta(e.target.value)}
+                                            className="w-full bg-white dark:bg-teal-900/60 p-2 rounded-xl text-xs text-slate-800 dark:text-white">
+                                            {LISTA_CUENTAS.map(c => <option key={c} value={c}>{c}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[9px] font-bold text-slate-400 uppercase">Responsable</label>
+                                        <select 
+                                            value={responsable}
+                                            onChange={(e) => setResponsable(e.target.value)}
+                                            className="w-full bg-white dark:bg-teal-900/60 p-2 rounded-xl text-xs text-slate-800 dark:text-white">
+                                            {['MARTINA', 'CAMILO'].map(r => <option key={r} value={r}>{r}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[9px] font-bold text-slate-400 uppercase">Destino / Beneficiario</label>
+                                    <select 
+                                        value={destino}
+                                        onChange={(e) => setDestino(e.target.value)}
+                                        className="w-full bg-white dark:bg-teal-900/60 p-2 rounded-xl text-xs text-slate-800 dark:text-white">
+                                        <option value="">-- Sin Destino Especificado --</option>
+                                        {LISTA_PERSONAS.map(p => <option key={p} value={p}>{p}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="p-2.5 rounded-2xl bg-teal-50 dark:bg-teal-950/50 border border-teal-200/50 dark:border-teal-800/50 flex justify-between items-center text-xs">
+                        <span className="text-teal-900 dark:text-teal-200 font-medium">¿Quieres registrar un préstamo o compromiso?</span>
+                        <button 
+                            type="button" 
+                            onClick={onOpenAddDebt}
+                            className="text-teal-600 dark:text-teal-300 font-extrabold hover:underline">
+                            + Crear Deuda
+                        </button>
+                    </div>
+
+                    <div className="pt-2">
+                        <button 
+                            type="submit"
+                            className="w-full py-3.5 bg-gradient-to-r from-teal-400 to-emerald-400 text-teal-950 font-extrabold rounded-2xl shadow-lg hover:opacity-90 active:scale-98 transition-all text-xs tracking-wide">
+                            Guardar Movimiento
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    );
+}
+
+function AddDebtModal({ currentUser, onClose, onSave }) {
+    const { useState } = React;
+    const today = new Date().toISOString().split('T')[0];
+
+    const [tipo, setTipo] = useState('DEBO');
+    const [persona, setPersona] = useState(currentUser);
+    const [aquien, setAquien] = useState('');
+    const [descripcion, setDescripcion] = useState('');
+    const [importe, setImporte] = useState('');
+    const [fecha, setFecha] = useState(today);
+
+    const handleSave = (e) => {
+        e.preventDefault();
+        if (!importe || parseFloat(importe) <= 0 || !aquien.trim()) return;
+
+        const newDebt = {
+            id: `D00${Math.floor(Math.random() * 900) + 100}`,
+            fecha: fecha || today,
+            tipo: tipo,
+            persona: persona,
+            aquien: aquien.toUpperCase().trim(),
+            descripcion: descripcion || (tipo === 'DEBO' ? 'PRÉSTAMO' : 'POR COBRAR'),
+            importe: parseFloat(importe),
+            pagado: 0.00,
+            estado: 'PENDIENTE'
+        };
+
+        onSave(newDebt);
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 bg-teal-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div className="w-full max-w-md bg-white dark:bg-tealbg-cardDark rounded-t-3xl sm:rounded-3xl p-5 shadow-2xl border border-teal-100 dark:border-teal-800/50">
+                
+                <div className="flex justify-between items-center border-b border-slate-100 dark:border-teal-800/40 pb-3">
+                    <div>
+                        <h3 className="font-bold text-sm text-slate-800 dark:text-white">📌 Registrar Nueva Deuda</h3>
+                        <p className="text-[10px] text-slate-400 dark:text-teal-300/60">Añade préstamos o dinero por cobrar/pagar</p>
+                    </div>
+                    <button onClick={onClose} className="p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-teal-900/50 text-slate-400">
+                        <i data-lucide="x" className="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form onSubmit={handleSave} className="space-y-3 text-xs mt-3">
+                    <div className="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-teal-950/60 p-1 rounded-2xl">
+                        <button
+                            type="button"
+                            onClick={() => setTipo('DEBO')}
+                            className={`py-2 rounded-xl font-bold text-xs transition-all ${
+                                tipo === 'DEBO'
+                                ? 'bg-rose-500 text-white shadow-sm'
+                                : 'text-slate-500 dark:text-teal-200/60'
+                            }`}>
+                            🔴 Debo a alguien
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setTipo('ME DEBEN')}
+                            className={`py-2 rounded-xl font-bold text-xs transition-all ${
+                                tipo === 'ME DEBEN'
+                                ? 'bg-emerald-500 text-white shadow-sm'
+                                : 'text-slate-500 dark:text-teal-200/60'
+                            }`}>
+                            🟢 Me deben dinero
+                        </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Importe (€)</label>
+                            <input 
+                                type="number" 
+                                step="0.01"
+                                placeholder="0.00"
+                                value={importe}
+                                onChange={(e) => setImporte(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 font-black p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400 text-base"
+                                required
+                                autoFocus
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Fecha</label>
+                            <input 
+                                type="date" 
+                                value={fecha}
+                                onChange={(e) => setFecha(e.target.value)}
+                                className="w-full bg-slate-50 dark:bg-teal-950/60 font-semibold p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                                required
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">
+                            {tipo === 'DEBO' ? 'A quién le debo' : 'Quién me debe'}
+                        </label>
+                        <input 
+                            type="text" 
+                            placeholder="Ej. Laura, Ruby, Camilo, Banco..."
+                            value={aquien}
+                            onChange={(e) => setAquien(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-teal-950/60 font-semibold p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                            required
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-[10px] font-bold text-slate-400 dark:text-teal-300/70 uppercase mb-1">Concepto / Motivo</label>
+                        <input 
+                            type="text" 
+                            placeholder="Ej. Comida, Alquiler, Papeles, Coche..."
+                            value={descripcion}
+                            onChange={(e) => setDescripcion(e.target.value)}
+                            className="w-full bg-slate-50 dark:bg-teal-950/60 p-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        />
+                    </div>
+
+                    <div className="pt-2">
+                        <button 
+                            type="submit"
+                            className="w-full py-3.5 bg-gradient-to-r from-teal-400 to-emerald-400 text-teal-950 font-extrabold rounded-2xl shadow-lg hover:opacity-90 active:scale-98 transition-all text-xs tracking-wide">
+                            Guardar Deuda
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    );
+}
+
+function PinLogin({ onLogin }) {
+    const { useState } = React;
+
+    const [pin, setPin] = useState('');
+    const [error, setError] = useState('');
+
+    const numeros = [
+        '1', '2', '3',
+        '4', '5', '6',
+        '7', '8', '9'
+    ];
+
+    const introducirNumero = (numero) => {
+        if (pin.length >= 4) return;
+
+        const nuevoPin = pin + numero;
+        setError('');
+
+        if (nuevoPin.length === 4) {
+            if (nuevoPin === '1234') {
+                setTimeout(() => {
+                    onLogin('CAMILO');
+                }, 150);
+            } else if (nuevoPin === '5678') {
+                setTimeout(() => {
+                    onLogin('MARTINA');
+                }, 150);
+            } else {
+                setError('PIN incorrecto');
+
+                setTimeout(() => {
+                    setPin('');
+                    setError('');
+                }, 900);
+            }
+        } else {
+            setPin(nuevoPin);
+        }
+    };
+
+    const borrarNumero = () => {
+        setPin(pin.slice(0, -1));
+        setError('');
+    };
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-emerald-50 flex items-center justify-center p-6">
+            <div className="w-full max-w-sm">
+                <div className="text-center mb-8">
+                    <div className="w-20 h-20 mx-auto mb-5 rounded-3xl bg-gradient-to-tr from-teal-500 to-emerald-400 flex items-center justify-center shadow-xl shadow-teal-500/30">
+                        <span className="text-4xl">🔒</span>
+                    </div>
+
+                    <h1 className="text-3xl font-black text-slate-800">Bienvenido</h1>
+                    <p className="text-slate-500 mt-2 font-medium">Finanzas Familiares</p>
+                    <p className="text-slate-700 mt-7 font-bold text-sm">Ingresa el PIN</p>
+                </div>
+
+                <div className="flex justify-center gap-4 mb-5">
+                    {[0, 1, 2, 3].map((indice) => (
+                        <div
+                            key={indice}
+                            className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${
+                                indice < pin.length
+                                    ? 'bg-teal-500 border-teal-500 scale-110'
+                                    : 'bg-white border-slate-300'
+                            }`}
+                        />
+                    ))}
+                </div>
+
+                <div className="h-7 text-center mb-3">
+                    {error && (
+                        <p className="text-red-500 text-sm font-bold">{error}</p>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3.5">
+                    {numeros.map((numero) => (
+                        <button
+                            key={numero}
+                            type="button"
+                            onClick={() => introducirNumero(numero)}
+                            className="h-16 rounded-2xl bg-white shadow-md border border-slate-100 text-2xl font-bold text-slate-700 active:scale-95 transition-all hover:bg-teal-50"
+                        >
+                            {numero}
+                        </button>
+                    ))}
+
+                    <button
+                        type="button"
+                        onClick={borrarNumero}
+                        className="h-16 rounded-2xl bg-white shadow-md border border-slate-100 text-xl font-bold text-slate-500 active:scale-95 transition-all hover:bg-slate-50"
+                    >
+                        ⌫
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => introducirNumero('0')}
+                        className="h-16 rounded-2xl bg-white shadow-md border border-slate-100 text-2xl font-bold text-slate-700 active:scale-95 transition-all hover:bg-teal-50"
+                    >
+                        0
+                    </button>
+
+                    <div className="h-16"></div>
+                </div>
+
+                <p className="text-center text-xs text-slate-400 mt-8">Acceso protegido</p>
+            </div>
+        </div>
+    );
+}
+
+function PinUserModal({ currentUser, onClose, onSwitchUser }) {
+    const { useState } = React;
+    const [pin, setPin] = useState('');
+
+    const handlePinSubmit = (e) => {
+        e.preventDefault();
+        if (pin === '1234') {
+            onSwitchUser('CAMILO');
+        } else if (pin === '5678') {
+            onSwitchUser('MARTINA');
+        } else {
+            alert('PIN Incorrecto. Usa 1234 (Camilo) o 5678 (Martina)');
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 bg-teal-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="w-full max-w-xs bg-white dark:bg-tealbg-cardDark rounded-3xl p-6 shadow-2xl text-center space-y-4 border border-teal-100 dark:border-teal-800/50">
+                <div className="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-900/50 text-teal-600 dark:text-teal-300 mx-auto flex items-center justify-center">
+                    <i data-lucide="lock" className="w-6 h-6"></i>
+                </div>
+
+                <h3 className="font-bold text-sm text-slate-800 dark:text-white">Cambiar de Usuario</h3>
+                <p className="text-[11px] text-slate-400 dark:text-teal-300/60">Introduce PIN: 1234 (Camilo) o 5678 (Martina)</p>
+
+                <form onSubmit={handlePinSubmit} className="space-y-3">
+                    <input 
+                        type="password" 
+                        maxLength={4}
+                        placeholder="••••"
+                        value={pin}
+                        onChange={(e) => setPin(e.target.value)}
+                        className="w-full text-center text-2xl font-black bg-slate-50 dark:bg-teal-950/60 py-2.5 rounded-2xl border border-slate-200 dark:border-teal-800/50 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-teal-400"
+                        autoFocus
+                    />
+
+                    <div className="flex gap-2">
+                        <button 
+                            type="button" 
+                            onClick={onClose}
+                            className="flex-1 py-2.5 bg-slate-100 dark:bg-teal-900/40 text-slate-600 dark:text-teal-200 font-semibold rounded-xl text-xs">
+                            Cancelar
+                        </button>
+                        <button 
+                            type="submit" 
+                            className="flex-1 py-2.5 bg-teal-500 text-white font-bold rounded-xl text-xs">
+                            Entrar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+
+</script>
+</body>
+</html>
